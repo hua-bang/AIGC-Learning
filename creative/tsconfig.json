@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "declaration": false,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "target": "es6",
+    "sourceMap": false,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "module": "ESNext", // "module": "CommonJS" should work too
+    "moduleResolution": "Node",
+    "esModuleInterop": true,
+		"allowSyntheticDefaultImports": true
+  },
+  "exclude": ["node_modules"],
+  "ts-node": {
+		"compilerOptions": {
+      "target": "es6",
+			"esModuleInterop": true,
+			"allowSyntheticDefaultImports": true
+    },
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
+  }
+  // "include": ["ormconfig.json"]
+}
