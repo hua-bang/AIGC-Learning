@@ -1,0 +1,18 @@
+{
+  "name": "lang-chain",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^20.3.3",
+    "dotenv": "^16.3.1",
+    "langchain": "0.0.102",
+    "pdf-parse": "^1.1.1"
+  }
+}
