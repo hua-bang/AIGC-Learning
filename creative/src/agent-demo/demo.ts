@@ -37,6 +37,6 @@ const calculatorTool: Tool = {
 const agent = new Agent(llm, [weatherTool, calculatorTool], true);
 
 // 使用 Agent 处理一些指令
-agent.processInstruction('What is the weather in San Francisco?')
+agent.processInstruction('What is the result of 100 * 100 - 30?')
   .then(result => console.log(result))
   .catch(error => console.error(error));

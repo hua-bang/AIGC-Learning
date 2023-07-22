@@ -8,7 +8,7 @@ export enum AgentState {
   CALL_TOOL,
   PROCESS_RESULT,
   HANDLE_ERROR,
-  OUTPUT_RESULT = 6,
+  OUTPUT_RESULT
 }
 
 export class Agent {
@@ -27,6 +27,7 @@ export class Agent {
   async processInstruction(instruction: string) {
     let result = null;
     let actionInfo = null;
+
     let step = 1;
 
     let logEvent;
@@ -44,36 +45,18 @@ export class Agent {
         switch (this.state) {
           case AgentState.INITIAL:
             this.state = AgentState.CALL_LLM;
-            
             logEvent?.('AgentState.INITIAL', `user instruction is '${instruction}'`);
             break;
           case AgentState.CALL_LLM:
+          case AgentState.PROCESS_RESULT:
             actionInfo = await this.callLLM(instruction, result);
-
-            if (actionInfo.action === 'call_tool') {
-              this.state = AgentState.CALL_TOOL;
-            } else if (actionInfo.action === 'output_result') {
-              result = actionInfo.params.result;
-              this.state = AgentState.OUTPUT_RESULT;
-            }
-
+            result = this.updateStateBasedOnAction(actionInfo);
             logEvent?.('AgentState.CALL_LLM', `actionInfo is ${JSON.stringify(actionInfo)}`);
             break;
           case AgentState.CALL_TOOL:
             result = await this.callTool(actionInfo.params);
-            this.state = AgentState.PROCESS_RESULT;
-            
             logEvent?.('AgentState.CALL_TOOL', `tool result 'is ${result}'`);
-            break;
-          case AgentState.PROCESS_RESULT:
-            actionInfo = await this.callLLM(instruction, result);
-
-            if (actionInfo.action === 'output_result') {
-              result = actionInfo.params.result;
-            }
-
-            this.state = AgentState.OUTPUT_RESULT;
-            logEvent?.('AgentState.CALL_LLM', `actionInfo is ${JSON.stringify(actionInfo)}`);
+            this.state = AgentState.PROCESS_RESULT;
             break;
           default:
             throw new Error(`Invalid state, ${this.state}`);
@@ -94,11 +77,21 @@ export class Agent {
 
   async callTool({ toolName, toolInput }: { toolName: string; toolInput: string }) {
     const toolToUse = this.tools.find(tool => tool.name === toolName);
-    if (toolToUse) {
-      const result = await toolToUse.call(toolInput);
-      return result;
-    } else {
+    if (!toolToUse) {
       throw new Error(`Tool ${toolName} not found`);
     }
+    const result = await toolToUse.call(toolInput);
+    return result;
+  }
+
+  updateStateBasedOnAction(actionInfo: { action: string; params: any }) {
+    if (actionInfo.action === 'call_tool') {
+      this.state = AgentState.CALL_TOOL;
+      return null;
+    } else if (actionInfo.action === 'output_result') {
+      this.state = AgentState.OUTPUT_RESULT;
+      return actionInfo.params.result;
+    }
+    return null;
   }
 }
